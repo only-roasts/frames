@@ -1,5 +1,6 @@
 /** @jsxImportSource frog/jsx */
 
+import { getIpfsMetadata, getRoast } from "@/app/lib/utils";
 import axios from "axios";
 import { Button, Frog, TextInput } from "frog";
 import { devtools } from "frog/dev";
@@ -17,56 +18,50 @@ const app = new Frog({
 
 // Uncomment to use Edge Runtime
 // export const runtime = 'edge'
+const roastData = [
+  {
+    roast: "You’ve spent more on gas fees than on your coffee this month! ☕",
+    walletAddress: "0x1234567890",
+    flameCount: 3,
+  },
+];
 
-app.frame("/:tokenId", async (c) => {
-  const roastData = [
-    {
-      roast: "You’ve spent more on gas fees than on your coffee this month! ☕",
-      walletAddress: "0x1234567890",
-      flameCount: 3,
-    },
-  ];
+app.frame("/inital/:tokenId", async (c) => {
   const { buttonValue, inputText, status } = c;
   const fruit = inputText || buttonValue;
 
-  console.log(c.req.param("tokenId"));
   const tokenId = c.req.param("tokenId");
 
-  const ipfsMetaDataResponse = await axios.get(
-    `https://white-official-scallop-559.mypinata.cloud/ipfs/${tokenId}`
-  );
-
-  console.log(ipfsMetaDataResponse.data);
-  // const roastResponse = await axios.get(
-  //   "http://localhost:3001/api/generate-roast"
-  // );
-
-  // const roastImageResponse = await axios.post(
-  //   "http://localhost:3001/api/generate-image",
-  //   {
-  //     roast: roastData[0].roast,
-  //     walletAddress: roastData[0].walletAddress,
-  //     flameCount: roastData[0].flameCount,
-  //   }
-  // );
-
-  // const { image } = roastImageResponse.data;
+  const ipfsMetaData = await getIpfsMetadata(tokenId);
 
   return c.res({
-    // image ? (`data:image/png;base64,${image}`) :
     image: (
       <div tw="flex bg-white text-black">
-        <p>hi {ipfsMetaDataResponse.data.name}</p>
+        <p>hi {ipfsMetaData.name}</p>
+        <p>description: {ipfsMetaData.description}</p>
       </div>
     ),
 
     intents: [
-      <Button action="/getRoast" value="goldfinger">
-        Get Your Roast
-      </Button>,
-      <Button.Mint target="eip155:84532:0x07E909d6B1857E7a90a6a05DacE89A1d8E234Bfc:1">
-        Mint Now
-      </Button.Mint>,
+      <Button action="/generate-roast">Get Your Roast</Button>,
+
+      <Button.Link href="https://google.com">Vist Website</Button.Link>,
+    ],
+  });
+});
+
+app.frame("/generate-roast", async (c) => {
+  const fid = c.frameData?.fid;
+  const { roast, address } = await getRoast(fid);
+  return c.res({
+    image: (
+      <div tw="flex bg-white text-black">
+        <p>{roast}</p>
+      </div>
+    ),
+    intents: [
+      <Button value="goldfinger">Mint Your Roast</Button>,
+
       <Button.Link href="https://google.com">Vist Website</Button.Link>,
     ],
   });
