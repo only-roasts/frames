@@ -1,6 +1,6 @@
 /** @jsxImportSource frog/jsx */
 
-import { getIpfsMetadata, getRoast } from "@/app/lib/utils";
+import { getIpfsMetadata, getRoast, getWebURL } from "@/app/lib/utils";
 import axios from "axios";
 import { Button, Frog, TextInput } from "frog";
 import { devtools } from "frog/dev";
@@ -9,6 +9,15 @@ import { handle } from "frog/next";
 import { serveStatic } from "frog/serve-static";
 
 const app = new Frog({
+  imageOptions: {
+    /* Other default options */
+    fonts: [
+      {
+        name: "Bangers",
+        source: "google",
+      },
+    ],
+  },
   assetsPath: "/",
   basePath: "/api",
   // Supply a Hub to enable frame verification.
@@ -32,37 +41,82 @@ app.frame("/inital/:tokenId", async (c) => {
 
   const tokenId = c.req.param("tokenId");
 
-  const ipfsMetaData = await getIpfsMetadata(tokenId);
+  // const ipfsMetaData = await getIpfsMetadata(tokenId);
 
   return c.res({
     image: (
-      <div tw="flex bg-white text-black">
-        <p>hi {ipfsMetaData.name}</p>
-        <p>description: {ipfsMetaData.description}</p>
+      <div tw="flex bg-white text-black h-full w-full justify-center items-center ">
+        <p tw="text-[40px] border border-black p-3">
+          "Looks like you've spent 2 eth for gas, you are the meme in meme coin"
+        </p>
       </div>
     ),
 
     intents: [
+      <Button>Lit</Button>,
+      <Button>Drop</Button>,
       <Button action="/generate-roast">Get Your Roast</Button>,
-
-      <Button.Link href="https://google.com">Vist Website</Button.Link>,
+      <Button.Link href={getWebURL() || ""}>Vist Website</Button.Link>,
     ],
   });
 });
 
 app.frame("/generate-roast", async (c) => {
   const fid = c.frameData?.fid;
-  const { roast, address } = await getRoast(fid);
+  // const { roast, address } = await getRoast(fid);
   return c.res({
     image: (
-      <div tw="flex bg-white text-black">
-        <p>{roast}</p>
+      <div tw="flex bg-white text-black h-full w-full justify-center items-center">
+        <p tw="text-[40px] border border-black p-3">
+          "You’ve spent more on gas fees than on your coffee this month! ☕"
+        </p>
       </div>
     ),
     intents: [
-      <Button value="goldfinger">Mint Your Roast</Button>,
+      <Button action="/minted">Mint As NFT</Button>,
 
-      <Button.Link href="https://google.com">Vist Website</Button.Link>,
+      <Button.Link href={getWebURL() || ""}>Vist Website</Button.Link>,
+    ],
+  });
+});
+
+app.frame("/minted", async (c) => {
+  const { buttonValue, inputText, status } = c;
+  const fruit = inputText || buttonValue;
+
+  return c.res({
+    image: (
+      <div tw="flex bg-white text-black h-full w-full justify-center items-center p-3">
+        <p tw="text-[40px] border border-black p-3">
+          Your Roast NFT has minted successfully, Now you can roast your friend
+          by entering farcaster name
+        </p>
+      </div>
+    ),
+    intents: [
+      <TextInput placeholder="Enter your friend farcaster name..." />,
+      <Button action="/roast-a-friend">Roast - A - Friend</Button>,
+      <Button.Link href={getWebURL() || ""}>Vist Website</Button.Link>,
+    ],
+  });
+});
+
+app.frame("/roast-a-friend", async (c) => {
+  const { buttonValue, inputText, status } = c;
+
+  return c.res({
+    image: (
+      <div tw="flex bg-white text-black h-full w-full justify-center items-center p-3">
+        <p tw="text-[40px] border border-black p-3">
+          "Successfully roasted your friend, Check our farcaster handle to see
+          the roast"
+        </p>
+      </div>
+    ),
+    intents: [
+      <TextInput placeholder="Enter your friend farcaster name..." />,
+      <Button action="/roast-a-friend">Roast - A - Friend</Button>,
+      <Button.Link href={getWebURL() || ""}>Vist Website</Button.Link>,
     ],
   });
 });

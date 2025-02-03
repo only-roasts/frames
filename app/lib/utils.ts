@@ -1,6 +1,12 @@
 import axios from "axios";
 import { IPFSMetadata } from "./interface";
 
+export const getWebURL = () => {
+  return process.env.ENVIRONMENT == "development"
+    ? process.env.NEXT_DEV_WEB_URL
+    : process.env.NEXT_PROD_WEB_URL;
+};
+
 export const getIpfsMetadata = async (
   tokenId: string
 ): Promise<IPFSMetadata> => {
@@ -13,14 +19,14 @@ export const getIpfsMetadata = async (
 
 export const getRoast = async (fid: number | undefined) => {
   const roastResponse = await axios.get(
-    `http://localhost:3001/api/generate-roast/${fid}`
+    `${getWebURL()}/api/generate-roast/${fid}`
   );
   return roastResponse.data;
 };
 
 export const getRoastImage = async (roastData: any) => {
   const roastImageResponse = await axios.post(
-    "http://localhost:3001/api/generate-image",
+    `${getWebURL()}/api/generate-image`,
     {
       roast: roastData[0].roast,
       walletAddress: roastData[0].walletAddress,
