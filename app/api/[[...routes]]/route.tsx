@@ -95,7 +95,7 @@ app.frame("/minted", async (c) => {
       </div>
     ),
     intents: [
-      <TextInput placeholder="Enter your friend farcaster name..." />,
+      <TextInput placeholder="Enter farcaster name" />,
       <Button action="/roast-a-friend">Roast - A - Friend</Button>,
       <Button.Link href={getWebURL() || ""}>Vist Website</Button.Link>,
     ],
