@@ -6,7 +6,7 @@ import { devtools } from "frog/dev";
 // import { neynar } from 'frog/hubs'
 import { handle } from "frog/next";
 import { serveStatic } from "frog/serve-static";
-import { abi } from "@/app/lib/OnlyRoastABI";
+import { abi, address } from "@/app/lib/OnlyRoastNFTContract";
 
 const app = new Frog({
   imageOptions: {
@@ -78,9 +78,7 @@ app.frame("/generate-roast", async (c) => {
       </div>
     ),
     intents: [
-      <Button.Transaction
-        target={`/minted/${cid}`}
-      >
+      <Button.Transaction target={`/minted/${cid}`}>
         Mint As NFT
       </Button.Transaction>,
 
@@ -100,7 +98,7 @@ app.transaction("/minted/:cid", (c) => {
     functionName: "safeMint",
     //@ts-expect-error
     args: [c.frameData?.address, cid],
-    to: "0x0d23c18151c8289d2B72d577a6b9Bf44b3660A4F",
+    to: address,
   });
 });
 
