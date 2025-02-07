@@ -1,12 +1,12 @@
 /** @jsxImportSource frog/jsx */
 
 import { getIpfsMetadata, getRoast, getWebURL } from "@/app/lib/utils";
-import axios from "axios";
 import { Button, Frog, TextInput } from "frog";
 import { devtools } from "frog/dev";
 // import { neynar } from 'frog/hubs'
 import { handle } from "frog/next";
 import { serveStatic } from "frog/serve-static";
+import { abi } from "@/app/lib/OnlyRoastABI";
 
 const app = new Frog({
   imageOptions: {
@@ -36,20 +36,21 @@ const roastData = [
   },
 ];
 
-app.frame("/inital/:tokenId", async (c) => {
+app.frame("/initial/:cid", async (c) => {
   const { buttonValue, inputText, status } = c;
   const fruit = inputText || buttonValue;
 
-  const tokenId = c.req.param("tokenId");
+  const cid = c.req.param("cid");
 
-  // const ipfsMetaData = await getIpfsMetadata(tokenId);
+  const ipfsMetaData = await getIpfsMetadata(cid);
 
+  const { name, description, image, attributes } = ipfsMetaData;
+
+  console.log(ipfsMetaData);
   return c.res({
     image: (
       <div tw="flex bg-white text-black h-full w-full justify-center items-center ">
-        <p tw="text-[40px] border border-black p-3">
-          "Looks like you've spent 2 eth for gas, you are the meme in meme coin"
-        </p>
+        {name}
       </div>
     ),
 
@@ -64,8 +65,11 @@ app.frame("/inital/:tokenId", async (c) => {
 
 app.frame("/generate-roast", async (c) => {
   const fid = c.frameData?.fid;
-  // const { roast, address } = await getRoast(fid);
+  const { cid } = await getRoast(fid);
+  // const ipfsMetaData = await getIpfsMetadata(cid);
+
   return c.res({
+    action: "/finish",
     image: (
       <div tw="flex bg-white text-black h-full w-full justify-center items-center">
         <p tw="text-[40px] border border-black p-3">
@@ -74,14 +78,33 @@ app.frame("/generate-roast", async (c) => {
       </div>
     ),
     intents: [
-      <Button action="/minted">Mint As NFT</Button>,
+      <Button.Transaction
+        target={`/minted/${cid}`}
+      >
+        Mint As NFT
+      </Button.Transaction>,
 
       <Button.Link href={getWebURL() || ""}>Vist Website</Button.Link>,
     ],
   });
 });
 
-app.frame("/minted", async (c) => {
+app.transaction("/minted/:cid", (c) => {
+  const cid = c.req.param("cid");
+  // Contract transaction response.
+  console.log(cid);
+  console.log(c.frameData?.address);
+  return c.contract({
+    abi,
+    chainId: "eip155:84532",
+    functionName: "safeMint",
+    //@ts-expect-error
+    args: [c.frameData?.address, cid],
+    to: "0x0d23c18151c8289d2B72d577a6b9Bf44b3660A4F",
+  });
+});
+
+app.frame("/finish", async (c) => {
   const { buttonValue, inputText, status } = c;
   const fruit = inputText || buttonValue;
 

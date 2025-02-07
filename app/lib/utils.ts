@@ -7,11 +7,9 @@ export const getWebURL = () => {
     : process.env.NEXT_PROD_WEB_URL;
 };
 
-export const getIpfsMetadata = async (
-  tokenId: string
-): Promise<IPFSMetadata> => {
+export const getIpfsMetadata = async (cid: string): Promise<IPFSMetadata> => {
   const ipfsMetaDataResponse = await axios.get(
-    `https://white-official-scallop-559.mypinata.cloud/ipfs/${tokenId}`
+    `https://white-official-scallop-559.mypinata.cloud/ipfs/${cid}`
   );
 
   return ipfsMetaDataResponse.data;
