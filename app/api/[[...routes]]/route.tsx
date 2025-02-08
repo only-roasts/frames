@@ -1,6 +1,10 @@
 /** @jsxImportSource frog/jsx */
 
-import { getIpfsMetadata, getRoast, getWebURL } from "@/app/lib/utils";
+import {
+  getIpfsMetadata,
+  getPinataMetadataCID,
+  getWebURL,
+} from "@/app/lib/utils";
 import { Button, Frog, TextInput } from "frog";
 import { devtools } from "frog/dev";
 // import { neynar } from 'frog/hubs'
@@ -65,18 +69,12 @@ app.frame("/initial/:cid", async (c) => {
 
 app.frame("/generate-roast", async (c) => {
   const fid = c.frameData?.fid;
-  const { cid } = await getRoast(fid);
-  // const ipfsMetaData = await getIpfsMetadata(cid);
+  const { cid, roastData } = await getPinataMetadataCID(fid);
+  const ipfsMetaData = await getIpfsMetadata(cid);
 
   return c.res({
     action: "/finish",
-    image: (
-      <div tw="flex bg-white text-black h-full w-full justify-center items-center">
-        <p tw="text-[40px] border border-black p-3">
-          "You’ve spent more on gas fees than on your coffee this month! ☕"
-        </p>
-      </div>
-    ),
+    image: ipfsMetaData.image,
     intents: [
       <Button.Transaction target={`/minted/${cid}`}>
         Mint As NFT
