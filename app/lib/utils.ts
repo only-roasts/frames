@@ -21,16 +21,23 @@ export const getIpfsMetadata = async (cid: string): Promise<IPFSMetadata> => {
   return ipfsMetaDataResponse.data;
 };
 
-export const getPinataMetadataCID = async (fid: number | undefined) => {
-  // const roastData = await getRoastData(fid);
+export const roastAFriend = async (username: string, userFid: Number) => {
+  const sendcastResponse = await axios.post(`${getWebURL()}/roast-a-friend`, {
+    username,
+    userFid,
+  });
+};
 
-  const roastData = {
-    roast: "You’ve spent more on gas fees than on your coffee this month! ☕",
-    walletAddress: "0x1234567890",
-    flameCount: 0,
-    litCount: 0,
-    dropletCount: 0,
-  };
+export const getPinataMetadataCID = async (fid: number | undefined) => {
+  const roastData = await getRoastData(fid);
+
+  // const roastData = {
+  //   roast: "You’ve spent more on gas fees than on your coffee this month! ☕",
+  //   walletAddress: "0x1234567890",
+  //   flameCount: 0,
+  //   litCount: 0,
+  //   dropletCount: 0,
+  // };
 
   const roastImage = await getRoastImage(roastData);
 

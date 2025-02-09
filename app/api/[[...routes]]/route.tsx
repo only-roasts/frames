@@ -4,6 +4,7 @@ import {
   getIpfsMetadata,
   getPinataMetadataCID,
   getWebURL,
+  roastAFriend,
 } from "@/app/lib/utils";
 import { Button, Frog, TextInput } from "frog";
 import { devtools } from "frog/dev";
@@ -187,15 +188,13 @@ app.frame("/drop-token-finish", async (c) => {
 });
 
 app.frame("/minting-finish", async (c) => {
-  const { buttonValue, inputText, status } = c;
-  const fruit = inputText || buttonValue;
-
   return c.res({
     image: (
       <div tw="flex bg-white text-black h-full w-full justify-center items-center p-3">
         <p tw="text-[40px] border border-black p-3">
           Your Roast NFT has minted successfully, Now you can roast your friend
-          by entering farcaster name
+          by entering farcaster username or tag me along with your friend
+          farcaster mention
         </p>
       </div>
     ),
@@ -208,14 +207,18 @@ app.frame("/minting-finish", async (c) => {
 });
 
 app.frame("/roast-a-friend", async (c) => {
-  const { buttonValue, inputText, status } = c;
+  const { inputText } = c;
+  const fid = c.frameData?.fid;
 
+  const username = inputText;
+
+  const status = await roastAFriend(username!, fid!);
   return c.res({
     image: (
       <div tw="flex bg-white text-black h-full w-full justify-center items-center p-3">
         <p tw="text-[40px] border border-black p-3">
-          "Successfully roasted your friend, Check our farcaster handle to see
-          the roast"
+          "Successfully roasted your friend {username}, Check our farcaster
+          handle to see the roast"
         </p>
       </div>
     ),
