@@ -40,28 +40,51 @@ const roastData = [
   },
 ];
 
-app.frame("/initial/:cid", async (c) => {
-  const { buttonValue, inputText, status } = c;
-  const fruit = inputText || buttonValue;
-
+app.frame("/postedFromClient/:cid", async (c) => {
   const cid = c.req.param("cid");
 
   const ipfsMetaData = await getIpfsMetadata(cid);
 
-  const { name, description, image, attributes } = ipfsMetaData;
+  const { name, description, image, attributes, tokenId } = ipfsMetaData;
 
   console.log(ipfsMetaData);
   return c.res({
-    image: (
-      <div tw="flex bg-white text-black h-full w-full justify-center items-center ">
-        {name}
-      </div>
-    ),
+    image: image,
 
     intents: [
-      <Button>Lit</Button>,
-      <Button>Drop</Button>,
+      <Button.Transaction
+        target={`/lit-token/${tokenId}`}
+        action="/lit-token-finish"
+      >
+        Lit
+      </Button.Transaction>,
+      <Button.Transaction
+        target={`/drop-token/${tokenId}`}
+        action="/drop-token-finish"
+      >
+        Drop
+      </Button.Transaction>,
       <Button action="/generate-roast">Get Your Roast</Button>,
+      <Button.Link href={getWebURL() || ""}>Vist Website</Button.Link>,
+    ],
+  });
+});
+
+app.frame("/postedByBot/:cid", async (c) => {
+  const cid = c.req.param("cid");
+
+  const ipfsMetaData = await getIpfsMetadata(cid);
+
+  const { name, description, image, attributes, tokenId } = ipfsMetaData;
+
+  console.log(ipfsMetaData);
+  return c.res({
+    image: image,
+
+    intents: [
+      <Button.Transaction target={`/minted/${cid}`} action="/minting-finish">
+        Mint As NFT
+      </Button.Transaction>,
       <Button.Link href={getWebURL() || ""}>Vist Website</Button.Link>,
     ],
   });
@@ -73,7 +96,7 @@ app.frame("/generate-roast", async (c) => {
   const ipfsMetaData = await getIpfsMetadata(cid);
 
   return c.res({
-    action: "/finish",
+    action: "/minting-finish",
     image: ipfsMetaData.image,
     intents: [
       <Button.Transaction target={`/minted/${cid}`}>
@@ -82,6 +105,35 @@ app.frame("/generate-roast", async (c) => {
 
       <Button.Link href={getWebURL() || ""}>Vist Website</Button.Link>,
     ],
+  });
+});
+
+app.transaction("/lit-token/:tokenId", (c) => {
+  console.log("Transaction");
+  const tokenId = c.req.param("tokenId");
+  // Contract transaction response.
+  console.log(tokenId);
+  console.log(c.frameData?.address);
+  return c.contract({
+    abi,
+    chainId: "eip155:84532",
+    functionName: "litToken",
+    args: [BigInt(tokenId)],
+    to: address,
+  });
+});
+
+app.transaction("/drop-token/:tokenId", (c) => {
+  const tokenId = c.req.param("tokenId");
+  // Contract transaction response.
+  console.log(tokenId);
+  console.log(c.frameData?.address);
+  return c.contract({
+    abi,
+    chainId: "eip155:84532",
+    functionName: "dropToken",
+    args: [BigInt(tokenId)],
+    to: address,
   });
 });
 
@@ -100,7 +152,41 @@ app.transaction("/minted/:cid", (c) => {
   });
 });
 
-app.frame("/finish", async (c) => {
+app.frame("/lit-token-finish", async (c) => {
+  return c.res({
+    image: (
+      <div tw="flex bg-white text-black h-full w-full justify-center items-center p-3">
+        <p tw="text-[40px] border border-black p-3">
+          You've litted the roast token successfully, Now you can get your own
+          roast
+        </p>
+      </div>
+    ),
+    intents: [
+      <Button action="/generate-roast">Get Your Roast</Button>,
+      <Button.Link href={getWebURL() || ""}>Vist Website</Button.Link>,
+    ],
+  });
+});
+
+app.frame("/drop-token-finish", async (c) => {
+  return c.res({
+    image: (
+      <div tw="flex bg-white text-black h-full w-full justify-center items-center p-3">
+        <p tw="text-[40px] border border-black p-3">
+          You've water dropped the roast token successfully, Now you can get
+          your own roast
+        </p>
+      </div>
+    ),
+    intents: [
+      <Button action="/generate-roast">Get Your Roast</Button>,
+      <Button.Link href={getWebURL() || ""}>Vist Website</Button.Link>,
+    ],
+  });
+});
+
+app.frame("/minting-finish", async (c) => {
   const { buttonValue, inputText, status } = c;
   const fruit = inputText || buttonValue;
 
