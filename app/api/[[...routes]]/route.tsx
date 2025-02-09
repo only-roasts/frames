@@ -50,7 +50,11 @@ app.frame("/postedFromClient/:cid", async (c) => {
 
   console.log(ipfsMetaData);
   return c.res({
-    image: image,
+    image: (
+      <div tw="flex bg-white text-black h-full w-full justify-center items-center">
+        <p tw="text-[40px] border border-black p-3">{roastData[0].roast}</p>
+      </div>
+    ),
 
     intents: [
       <Button.Transaction
@@ -80,7 +84,11 @@ app.frame("/postedByBot/:cid", async (c) => {
 
   console.log(ipfsMetaData);
   return c.res({
-    image: image,
+    image: (
+      <div tw="flex bg-white text-black h-full w-full justify-center items-center">
+        <p tw="text-[40px] border border-black p-3">{roastData[0].roast}</p>
+      </div>
+    ),
 
     intents: [
       <Button.Transaction target={`/minted/${cid}`} action="/minting-finish">
