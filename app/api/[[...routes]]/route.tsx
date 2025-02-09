@@ -50,14 +50,7 @@ app.frame("/postedFromClient/:cid", async (c) => {
 
   console.log(ipfsMetaData);
   return c.res({
-    image: (
-      <div tw="flex bg-white text-black h-full w-full justify-center items-center">
-        <p tw="text-[40px] border border-black p-3">
-          "Spending $2.65 in gas fees that could practically fuel a rocket to
-          the moon—are you a whale or just a very lost sardine? "
-        </p>
-      </div>
-    ),
+    image: image,
 
     intents: [
       <Button.Transaction
@@ -87,14 +80,7 @@ app.frame("/postedByBot/:cid", async (c) => {
 
   console.log(ipfsMetaData);
   return c.res({
-    image: (
-      <div tw="flex bg-white text-black h-full w-full justify-center items-center">
-        <p tw="text-[40px] border border-black p-3">
-          "Spending $2.65 in gas fees that could practically fuel a rocket to
-          the moon—are you a whale or just a very lost sardine? "
-        </p>
-      </div>
-    ),
+    image: image,
 
     intents: [
       <Button.Transaction target={`/minted/${cid}`} action="/minting-finish">
